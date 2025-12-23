@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QMessageBox, QApplication
 from config import load_config
 from controllers.config_controller import ConfigController
 from controllers.vpn_controller import VpnController
+from controllers.stands_controller import StandsController
 
 
 def main():
@@ -29,9 +30,11 @@ def main():
     # Регистрация контроллеров
     config_controller = ConfigController(config)
     vpn_controller = VpnController(config)
+    stands_controller = StandsController(config)
 
     engine.rootContext().setContextProperty("configController", config_controller)
     engine.rootContext().setContextProperty("vpnController", vpn_controller)
+    engine.rootContext().setContextProperty("standsController", stands_controller)
 
     qml_file = Path(__file__).parent / "qml" / "Main.qml"
     engine.load(qml_file)
