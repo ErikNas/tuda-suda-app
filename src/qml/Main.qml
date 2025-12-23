@@ -26,26 +26,22 @@ ApplicationWindow {
 
             Item { Layout.fillWidth: true }
 
-            // VPN индикаторы (заглушки)
+            // VPN индикаторы
             Row {
                 spacing: 15
 
-                Row {
-                    spacing: 5
-                    Rectangle {
-                        width: 12; height: 12; radius: 6
-                        color: "#888888"
-                    }
-                    Label { text: "VPN-1"; font.pixelSize: 12 }
-                }
+                Repeater {
+                    model: vpnController.vpn_list
 
-                Row {
-                    spacing: 5
-                    Rectangle {
-                        width: 12; height: 12; radius: 6
-                        color: "#888888"
+                    Row {
+                        spacing: 5
+                        Rectangle {
+                            width: 12; height: 12; radius: 6
+                            color: modelData.available === null ? "#888888" :
+                                   modelData.available ? "#4CAF50" : "#F44336"
+                        }
+                        Label { text: modelData.name; font.pixelSize: 12 }
                     }
-                    Label { text: "VPN-2"; font.pixelSize: 12 }
                 }
             }
         }

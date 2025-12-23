@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QMessageBox, QApplication
 
 from config import load_config
 from controllers.config_controller import ConfigController
+from controllers.vpn_controller import VpnController
 
 
 def main():
@@ -25,9 +26,12 @@ def main():
 
     engine = QQmlApplicationEngine()
 
-    # Регистрация контроллера
+    # Регистрация контроллеров
     config_controller = ConfigController(config)
+    vpn_controller = VpnController(config)
+
     engine.rootContext().setContextProperty("configController", config_controller)
+    engine.rootContext().setContextProperty("vpnController", vpn_controller)
 
     qml_file = Path(__file__).parent / "qml" / "Main.qml"
     engine.load(qml_file)
@@ -35,7 +39,12 @@ def main():
     if not engine.rootObjects():
         sys.exit(1)
 
-    sys.exit(app.exec())
+    # Запуск VPN-мониторинга
+    vpn_controller.start_monitoring()
+
+    exit_code = app.exec()
+    vpn_controller.stop_monitoring()
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
