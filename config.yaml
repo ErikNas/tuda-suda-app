@@ -1,0 +1,25 @@
+vpn_checks:
+  - name: "VPN-1"
+    check_url: "https://internal.corp.com/health"
+  - name: "VPN-2"
+    check_url: "https://internal2.corp.com/health"
+
+stands:
+  - name: "DEV-1"
+    api_url: "https://dev1.example.com/api"
+    db_host: "dev1-db.example.com"
+    db_port: 5432
+    db_name: "app_db"
+    db_user: "app_user"
+    db_password: "secret"
+  - name: "DEV-2"
+    api_url: "https://dev2.example.com/api"
+    db_host: "dev2-db.example.com"
+    db_port: 5432
+    db_name: "app_db"
+    db_user: "app_user"
+    db_password: "secret"
+
+token_api:
+  endpoint: "/auth/token"
+
