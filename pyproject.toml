@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "tuda-suda-app"
+version = "0.1.0"
+description = "Десктоп-приложение для управления и мониторинга тестовых сред"
+authors = ["eriknas"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyside6 = "^6.6"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
