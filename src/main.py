@@ -8,6 +8,7 @@ from config import load_config
 from controllers.config_controller import ConfigController
 from controllers.vpn_controller import VpnController
 from controllers.stands_controller import StandsController
+from controllers.token_controller import TokenController
 
 
 def main():
@@ -31,10 +32,12 @@ def main():
     config_controller = ConfigController(config)
     vpn_controller = VpnController(config)
     stands_controller = StandsController(config)
+    token_controller = TokenController(config)
 
     engine.rootContext().setContextProperty("configController", config_controller)
     engine.rootContext().setContextProperty("vpnController", vpn_controller)
     engine.rootContext().setContextProperty("standsController", stands_controller)
+    engine.rootContext().setContextProperty("tokenController", token_controller)
 
     qml_file = Path(__file__).parent / "qml" / "Main.qml"
     engine.load(qml_file)
