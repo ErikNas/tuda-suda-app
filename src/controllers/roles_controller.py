@@ -66,7 +66,7 @@ class RolesController(QObject):
             "password": stand.db_password,
         }
 
-        self._thread = RoleChangeThread(db_config, email.strip(), role, self)
+        self._thread = RoleChangeThread(db_config, email.strip(), role, stand_name, self)
         self._thread.success.connect(self._on_success)
         self._thread.error.connect(self._on_error)
         self._thread.start()

@@ -56,7 +56,7 @@ class TokenController(QObject):
         self.loading_changed.emit()
 
         self._fetch_thread = TokenFetchThread(
-            stand.api_url, self._config.token_api.endpoint, self
+            stand.api_url, self._config.token_api.endpoint, stand_name, self
         )
         self._fetch_thread.token_received.connect(self._on_token_received)
         self._fetch_thread.error_occurred.connect(self._on_error)

@@ -1,6 +1,8 @@
 import psycopg
 from PySide6.QtCore import QThread, Signal
 
+from services.app_logger import logger
+
 
 class RoleChangeThread(QThread):
     """Фоновый поток для изменения роли пользователя в БД."""
@@ -8,13 +10,15 @@ class RoleChangeThread(QThread):
     success = Signal(str)  # success message
     error = Signal(str)  # error message
 
-    def __init__(self, db_config: dict, email: str, role: str, parent=None):
+    def __init__(self, db_config: dict, email: str, role: str, stand_name: str, parent=None):
         super().__init__(parent)
         self._db_config = db_config
         self._email = email
         self._role = role
+        self._stand_name = stand_name
 
     def run(self):
+        logger.info(f"Изменение роли {self._email} на {self._role} ({self._stand_name})...")
         try:
             conn_str = (
                 f"host={self._db_config['host']} "
@@ -30,10 +34,14 @@ class RoleChangeThread(QThread):
                         (self._role, self._email)
                     )
                     if cur.rowcount == 0:
-                        self.error.emit(f"Пользователь {self._email} не найден")
+                        msg = f"Пользователь {self._email} не найден"
+                        logger.error(msg)
+                        self.error.emit(msg)
                     else:
                         conn.commit()
-                        self.success.emit(f"Роль {self._email} изменена на {self._role}")
+                        msg = f"Роль {self._email} изменена на {self._role}"
+                        logger.ok(msg)
+                        self.success.emit(msg)
         except Exception as e:
+            logger.error(f"Ошибка изменения роли: {e}")
             self.error.emit(str(e))
-

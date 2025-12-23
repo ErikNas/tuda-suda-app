@@ -1,6 +1,8 @@
 import requests
 from PySide6.QtCore import QThread, Signal
 
+from services.app_logger import logger
+
 
 class VpnCheckerThread(QThread):
     """Фоновый поток для проверки доступности VPN."""
@@ -12,9 +14,14 @@ class VpnCheckerThread(QThread):
         super().__init__(parent)
         self._vpn_checks = vpn_checks
         self._running = True
+        self._first_run = True
 
     def run(self):
         while self._running:
+            if self._first_run:
+                logger.info("Проверка VPN...")
+                self._first_run = False
+
             for vpn in self._vpn_checks:
                 if not self._running:
                     break
@@ -39,4 +46,3 @@ class VpnCheckerThread(QThread):
     def stop(self):
         self._running = False
         self.wait()
-
