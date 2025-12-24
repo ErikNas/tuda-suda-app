@@ -117,6 +117,12 @@ poetry add <package>
 
 # Добавление dev-зависимости
 poetry add --group dev <package>
+
+# Запуск тестов
+poetry run pytest
+
+# Запуск тестов с подробным выводом
+poetry run pytest -v
 ```
 
 ### Альтернативный запуск (без poetry)

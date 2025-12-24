@@ -14,7 +14,7 @@
 | 6 | Управление ролями | ✅ Готово | 23.12.2024 | 23.12.2024 |
 | 7 | Логирование | ✅ Готово | 23.12.2024 | 23.12.2024 |
 | 8 | Сборка и деплой | ✅ Готово | 23.12.2024 | 23.12.2024 |
-| 9 | Тестирование | ⬜ Ожидает | — | — |
+| 9 | Тестирование | ✅ Готово | 24.12.2024 | 24.12.2024 |
 | 10 | Ссылки на Swagger | ⬜ Ожидает | — | — |
 | 11 | Редизайн (Fluent) | ⬜ Ожидает | — | — |
 
@@ -133,17 +133,17 @@
 
 **Цель:** Покрытие кода unit и интеграционными тестами
 
-- [ ] Настроить pytest и структуру `tests/`
-- [ ] Unit-тесты для `config.py` — валидация конфига, обработка ошибок
-- [ ] Unit-тесты для `services/vpn_checker.py` — mock requests, проверка статусов
-- [ ] Unit-тесты для `services/stand_checker.py` — mock API, парсинг ответов
-- [ ] Unit-тесты для `services/token_service.py` — mock API, обработка ошибок
-- [ ] Unit-тесты для `services/role_service.py` — mock psycopg, SQL-запросы
-- [ ] Unit-тесты для `services/app_logger.py` — форматирование, сигналы
-- [ ] Интеграционные тесты контроллеров с mock-сервисами
-- [ ] Добавить pytest в dev-зависимости и команду запуска в README
+- [x] Настроить pytest и структуру `tests/`
+- [x] Unit-тесты для `config.py` — валидация конфига, обработка ошибок
+- [x] Unit-тесты для `services/vpn_checker.py` — mock requests, проверка статусов
+- [x] Unit-тесты для `services/stand_checker.py` — mock API, парсинг ответов
+- [x] Unit-тесты для `services/token_service.py` — mock API, обработка ошибок
+- [x] Unit-тесты для `services/role_service.py` — mock psycopg, SQL-запросы
+- [x] Unit-тесты для `services/app_logger.py` — форматирование, сигналы
+- [x] Интеграционные тесты контроллеров с mock-сервисами
+- [x] Добавить pytest в dev-зависимости и команду запуска в README
 
-**Тест:** `poetry run pytest` — все тесты проходят
+**Тест:** `poetry run pytest` — 62 теста проходят ✅
 
 ---
 

@@ -16,6 +16,12 @@ pydantic = "^2.5"
 [tool.poetry.group.dev.dependencies]
 black = "^24.0"
 pyinstaller = "^6.0"
+pytest = "^8.0"
+pytest-mock = "^3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
 
 [build-system]
 requires = ["poetry-core"]
