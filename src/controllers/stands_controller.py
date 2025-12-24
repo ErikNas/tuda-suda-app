@@ -14,7 +14,14 @@ class StandsController(QObject):
         super().__init__(parent)
         self._config = config
         self._stands_data = {
-            s.name: {"name": s.name, "api_url": s.api_url, "status": "unknown", "version": "—"}
+            s.name: {
+                "name": s.name,
+                "api_url": s.api_url,
+                "core_swagger_url": s.core_swagger_url or "",
+                "external_swagger_url": s.external_swagger_url or "",
+                "status": "unknown",
+                "version": "—",
+            }
             for s in config.stands
         }
         self._loading = False

@@ -36,7 +36,7 @@ Item {
 
             delegate: Rectangle {
                 width: ListView.view.width
-                height: 60
+                height: 80
                 radius: 8
                 color: "#3d3d3d"
 
@@ -51,8 +51,9 @@ Item {
                     }
 
                     ColumnLayout {
-                        spacing: 2
+                        spacing: 4
                         Layout.leftMargin: 8
+                        Layout.fillWidth: true
 
                         Label {
                             text: modelData.name
@@ -64,9 +65,36 @@ Item {
                             font.pixelSize: 11
                             color: "#888888"
                         }
-                    }
+                        RowLayout {
+                            spacing: 8
 
-                    Item { Layout.fillWidth: true }
+                            Label {
+                                text: "Core Swagger"
+                                font.pixelSize: 11
+                                color: modelData.core_swagger_url !== "" ? "#4FC3F7" : "#555555"
+                                visible: modelData.core_swagger_url !== ""
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: Qt.openUrlExternally(modelData.core_swagger_url)
+                                }
+                            }
+
+                            Label {
+                                text: "External Swagger"
+                                font.pixelSize: 11
+                                color: modelData.external_swagger_url !== "" ? "#4FC3F7" : "#555555"
+                                visible: modelData.external_swagger_url !== ""
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: Qt.openUrlExternally(modelData.external_swagger_url)
+                                }
+                            }
+                        }
+                    }
 
                     Label {
                         text: modelData.version

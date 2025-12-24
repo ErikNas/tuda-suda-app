@@ -17,6 +17,8 @@ class Stand(BaseModel):
     db_name: str
     db_user: str
     db_password: str
+    core_swagger_url: str | None = None
+    external_swagger_url: str | None = None
 
 
 class TokenApi(BaseModel):
