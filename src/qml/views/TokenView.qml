@@ -1,66 +1,189 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import ".."
 
 Item {
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 20
-        spacing: 20
+        anchors.margins: 24
+        spacing: 24
 
+        // Заголовок
         Label {
             text: "Токен"
-            font.pixelSize: 24
-            font.bold: true
+            font.pixelSize: 28
+            font.weight: Font.DemiBold
+            color: Theme.textPrimary
         }
 
-        RowLayout {
+        // Форма
+        Rectangle {
             Layout.fillWidth: true
-            spacing: 10
+            Layout.preferredHeight: formLayout.height + 32
+            radius: Theme.radiusLarge
+            color: Theme.card
 
-            ComboBox {
-                id: standCombo
-                Layout.preferredWidth: 200
-                model: tokenController.stands
-                enabled: !tokenController.loading
-            }
+            ColumnLayout {
+                id: formLayout
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: 16
+                spacing: 16
 
-            Button {
-                text: tokenController.loading ? "Получение..." : "Получить токен"
-                enabled: !tokenController.loading && standCombo.currentIndex >= 0
-                onClicked: tokenController.fetch_token(standCombo.currentText)
+                Label {
+                    text: "Выберите стенд для получения токена"
+                    font.pixelSize: 13
+                    color: Theme.textSecondary
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 12
+
+                    // Стилизованный ComboBox
+                    Rectangle {
+                        Layout.preferredWidth: 250
+                        Layout.preferredHeight: 40
+                        radius: Theme.radiusMedium
+                        color: comboMouseArea.containsMouse ? Theme.inputBackgroundHover : Theme.inputBackground
+                        border.width: standCombo.activeFocus ? 2 : 1
+                        border.color: standCombo.activeFocus ? Theme.borderFocus : Theme.border
+
+                        Behavior on color {
+                            ColorAnimation { duration: Theme.animationFast }
+                        }
+
+                        ComboBox {
+                            id: standCombo
+                            anchors.fill: parent
+                            anchors.margins: 1
+                            model: tokenController.stands
+                            enabled: !tokenController.loading
+                            font.pixelSize: 13
+
+                            background: Rectangle {
+                                color: "transparent"
+                            }
+
+                            contentItem: Label {
+                                leftPadding: 12
+                                text: standCombo.displayText
+                                font: standCombo.font
+                                color: Theme.textPrimary
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+
+                        MouseArea {
+                            id: comboMouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            acceptedButtons: Qt.NoButton
+                        }
+                    }
+
+                    // Кнопка получения токена
+                    Rectangle {
+                        Layout.preferredWidth: btnContent.width + 32
+                        Layout.preferredHeight: 40
+                        radius: Theme.radiusMedium
+                        color: !btnMouseArea.enabled ? Theme.textDisabled :
+                               btnMouseArea.pressed ? Theme.accentPressed :
+                               btnMouseArea.containsMouse ? Theme.accentHover : Theme.accent
+
+                        Behavior on color {
+                            ColorAnimation { duration: Theme.animationFast }
+                        }
+
+                        RowLayout {
+                            id: btnContent
+                            anchors.centerIn: parent
+                            spacing: 8
+
+                            BusyIndicator {
+                                Layout.preferredWidth: 16
+                                Layout.preferredHeight: 16
+                                running: tokenController.loading
+                                visible: tokenController.loading
+                            }
+
+                            Label {
+                                text: tokenController.loading ? "Получение..." : "Получить токен"
+                                font.pixelSize: 13
+                                font.weight: Font.Medium
+                                color: Theme.textOnAccent
+                            }
+                        }
+
+                        MouseArea {
+                            id: btnMouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            enabled: !tokenController.loading && standCombo.currentIndex >= 0
+                            onClicked: tokenController.fetch_token(standCombo.currentText)
+                        }
+                    }
+                }
             }
         }
 
         // Результат
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 120
-            radius: 8
-            color: "#3d3d3d"
+            Layout.preferredHeight: 150
+            radius: Theme.radiusLarge
+            color: Theme.card
             visible: tokenController.token || tokenController.error
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 15
-                spacing: 10
+                anchors.margins: 16
+                spacing: 12
 
-                Label {
-                    text: tokenController.error ? "Ошибка" : "Токен скопирован в буфер"
-                    font.bold: true
-                    color: tokenController.error ? "#F44336" : "#4CAF50"
+                RowLayout {
+                    spacing: 8
+
+                    Rectangle {
+                        width: 8
+                        height: 8
+                        radius: 4
+                        color: tokenController.error ? Theme.errorLight : Theme.successLight
+                    }
+
+                    Label {
+                        text: tokenController.error ? "Ошибка" : "Токен скопирован в буфер"
+                        font.pixelSize: 14
+                        font.weight: Font.DemiBold
+                        color: tokenController.error ? Theme.errorLight : Theme.successLight
+                    }
                 }
 
-                TextArea {
+                Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    text: tokenController.error || tokenController.token
-                    readOnly: true
-                    wrapMode: TextArea.Wrap
-                    selectByMouse: true
-                    background: Rectangle {
-                        color: "#2d2d2d"
-                        radius: 4
+                    radius: Theme.radiusMedium
+                    color: Theme.surface
+
+                    ScrollView {
+                        anchors.fill: parent
+                        anchors.margins: 8
+
+                        TextArea {
+                            text: tokenController.error || tokenController.token
+                            readOnly: true
+                            wrapMode: TextArea.Wrap
+                            selectByMouse: true
+                            font.pixelSize: 12
+                            font.family: "monospace"
+                            color: Theme.textPrimary
+
+                            background: Rectangle {
+                                color: "transparent"
+                            }
+                        }
                     }
                 }
             }
