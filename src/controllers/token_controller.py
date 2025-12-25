@@ -37,14 +37,19 @@ class TokenController(QObject):
     def loading(self) -> bool:
         return self._loading
 
-    @Slot(str)
-    def fetch_token(self, stand_name: str):
+    @Slot(str, str, str)
+    def fetch_token(self, stand_name: str, username: str, password: str):
         if self._loading:
             return
 
         stand = next((s for s in self._config.stands if s.name == stand_name), None)
         if not stand:
             self._error = "Стенд не найден"
+            self.error_changed.emit()
+            return
+
+        if not username or not password:
+            self._error = "Введите логин и пароль"
             self.error_changed.emit()
             return
 
@@ -56,7 +61,7 @@ class TokenController(QObject):
         self.loading_changed.emit()
 
         self._fetch_thread = TokenFetchThread(
-            stand.api_url, self._config.token_api.endpoint, stand_name, self
+            stand.api_url, stand_name, username, password, self
         )
         self._fetch_thread.token_received.connect(self._on_token_received)
         self._fetch_thread.error_occurred.connect(self._on_error)

@@ -128,9 +128,21 @@ class TestTokenController:
         """Ошибка при неизвестном стенде."""
         controller = TokenController(sample_config)
 
-        controller.fetch_token("UNKNOWN")
+        controller.fetch_token("UNKNOWN", "user", "pass")
 
         assert controller.error == "Стенд не найден"
+
+    def test_fetch_token_empty_credentials(self, sample_config):
+        """Ошибка при пустых логине/пароле."""
+        controller = TokenController(sample_config)
+
+        # Пустой логин
+        controller.fetch_token("DEV-1", "", "password")
+        assert controller.error == "Введите логин и пароль"
+
+        # Пустой пароль
+        controller.fetch_token("DEV-1", "username", "")
+        assert controller.error == "Введите логин и пароль"
 
     def test_fetch_token_starts_thread(self, sample_config):
         """fetch_token запускает поток."""
@@ -140,7 +152,7 @@ class TestTokenController:
             mock_instance = MagicMock()
             mock_thread.return_value = mock_instance
 
-            controller.fetch_token("DEV-1")
+            controller.fetch_token("DEV-1", "testuser", "testpass")
 
             assert controller.loading is True
             mock_thread.assert_called_once()

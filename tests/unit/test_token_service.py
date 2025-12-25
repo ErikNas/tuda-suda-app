@@ -5,82 +5,119 @@ from services.token_service import TokenFetchThread
 
 
 class TestTokenFetchThread:
-    """Тесты для TokenFetchThread."""
+    """Тесты для TokenFetchThread с SSO-аутентификацией."""
 
-    def test_fetch_token_success_token_field(self):
-        """Успешное получение токена (поле 'token')."""
+    def test_fetch_token_success(self):
+        """Успешное получение токена через SSO."""
         signals_received = []
 
-        thread = TokenFetchThread("https://api.test", "/auth/token", "DEV")
+        thread = TokenFetchThread(
+            "https://api.test", "DEV", "testuser", "testpass"
+        )
         thread.token_received.connect(lambda t: signals_received.append(("token", t)))
         thread.error_occurred.connect(lambda e: signals_received.append(("error", e)))
 
-        with patch("services.token_service.requests.get") as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = {"token": "abc123"}
-            mock_get.return_value = mock_response
+        with patch("services.token_service.requests.get") as mock_get, patch(
+            "services.token_service.requests.post"
+        ) as mock_post:
+            # Шаг 1: GET запрос возвращает Location header
+            mock_get_response = MagicMock()
+            mock_get_response.headers = {
+                "Location": "https://sso.test/auth/realms/jaga/something"
+            }
+            mock_get.return_value = mock_get_response
+
+            # Шаг 2: POST запрос возвращает токен
+            mock_post_response = MagicMock()
+            mock_post_response.status_code = 200
+            mock_post_response.json.return_value = {"access_token": "abc123xyz"}
+            mock_post.return_value = mock_post_response
 
             thread.run()
 
-        assert ("token", "abc123") in signals_received
-        mock_get.assert_called_once_with("https://api.test/auth/token", timeout=10)
+        assert ("token", "abc123xyz") in signals_received
+        mock_get.assert_called_once()
+        mock_post.assert_called_once()
 
-    def test_fetch_token_success_access_token_field(self):
-        """Успешное получение токена (поле 'access_token')."""
+    def test_fetch_token_no_location_header(self):
+        """Ошибка: отсутствует Location header."""
         signals_received = []
 
-        thread = TokenFetchThread("https://api.test", "/auth/token", "DEV")
-        thread.token_received.connect(lambda t: signals_received.append(("token", t)))
-
-        with patch("services.token_service.requests.get") as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = {"access_token": "xyz789"}
-            mock_get.return_value = mock_response
-
-            thread.run()
-
-        assert ("token", "xyz789") in signals_received
-
-    def test_fetch_token_empty_response(self):
-        """Пустой ответ — токен не найден."""
-        signals_received = []
-
-        thread = TokenFetchThread("https://api.test", "/auth/token", "DEV")
+        thread = TokenFetchThread(
+            "https://api.test", "DEV", "testuser", "testpass"
+        )
         thread.error_occurred.connect(lambda e: signals_received.append(("error", e)))
 
         with patch("services.token_service.requests.get") as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = {}
-            mock_get.return_value = mock_response
+            mock_get_response = MagicMock()
+            mock_get_response.headers = {}
+            mock_get.return_value = mock_get_response
 
             thread.run()
 
-        assert any("не найден" in msg for _, msg in signals_received)
+        assert any("Location header" in msg for _, msg in signals_received)
 
-    def test_fetch_token_http_error(self):
-        """HTTP ошибка при получении токена."""
+    def test_fetch_token_sso_http_error(self):
+        """HTTP ошибка при запросе к SSO."""
         signals_received = []
 
-        thread = TokenFetchThread("https://api.test", "/auth/token", "DEV")
+        thread = TokenFetchThread(
+            "https://api.test", "DEV", "testuser", "wrongpass"
+        )
         thread.error_occurred.connect(lambda e: signals_received.append(("error", e)))
 
-        with patch("services.token_service.requests.get") as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 401
-            mock_get.return_value = mock_response
+        with patch("services.token_service.requests.get") as mock_get, patch(
+            "services.token_service.requests.post"
+        ) as mock_post:
+            mock_get_response = MagicMock()
+            mock_get_response.headers = {
+                "Location": "https://sso.test/auth/realms/jaga/something"
+            }
+            mock_get.return_value = mock_get_response
+
+            mock_post_response = MagicMock()
+            mock_post_response.status_code = 401
+            mock_post_response.text = "Unauthorized"
+            mock_post.return_value = mock_post_response
 
             thread.run()
 
         assert any("401" in msg for _, msg in signals_received)
 
+    def test_fetch_token_no_access_token_in_response(self):
+        """Ошибка: access_token отсутствует в ответе."""
+        signals_received = []
+
+        thread = TokenFetchThread(
+            "https://api.test", "DEV", "testuser", "testpass"
+        )
+        thread.error_occurred.connect(lambda e: signals_received.append(("error", e)))
+
+        with patch("services.token_service.requests.get") as mock_get, patch(
+            "services.token_service.requests.post"
+        ) as mock_post:
+            mock_get_response = MagicMock()
+            mock_get_response.headers = {
+                "Location": "https://sso.test/auth/realms/jaga/something"
+            }
+            mock_get.return_value = mock_get_response
+
+            mock_post_response = MagicMock()
+            mock_post_response.status_code = 200
+            mock_post_response.json.return_value = {}
+            mock_post.return_value = mock_post_response
+
+            thread.run()
+
+        assert any("access_token не найден" in msg for _, msg in signals_received)
+
     def test_fetch_token_connection_error(self):
         """Ошибка соединения."""
         signals_received = []
 
-        thread = TokenFetchThread("https://api.test", "/auth/token", "DEV")
+        thread = TokenFetchThread(
+            "https://api.test", "DEV", "testuser", "testpass"
+        )
         thread.error_occurred.connect(lambda e: signals_received.append(("error", e)))
 
         with patch("services.token_service.requests.get") as mock_get:
@@ -92,9 +129,12 @@ class TestTokenFetchThread:
 
     def test_init_parameters(self):
         """Проверка параметров инициализации."""
-        thread = TokenFetchThread("https://api.test", "/token", "PROD")
+        thread = TokenFetchThread(
+            "https://api.test", "PROD", "myuser", "mypass"
+        )
 
         assert thread._api_url == "https://api.test"
-        assert thread._endpoint == "/token"
         assert thread._stand_name == "PROD"
+        assert thread._username == "myuser"
+        assert thread._password == "mypass"
 

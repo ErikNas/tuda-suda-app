@@ -5,34 +5,73 @@ from services.app_logger import logger
 
 
 class TokenFetchThread(QThread):
-    """Фоновый поток для получения токена."""
+    """Фоновый поток для получения токена через SSO."""
 
-    token_received = Signal(str)  # token
-    error_occurred = Signal(str)  # error message
+    token_received = Signal(str)
+    error_occurred = Signal(str)
 
-    def __init__(self, api_url: str, endpoint: str, stand_name: str, parent=None):
+    def __init__(
+        self,
+        api_url: str,
+        stand_name: str,
+        username: str,
+        password: str,
+        parent=None,
+    ):
         super().__init__(parent)
         self._api_url = api_url
-        self._endpoint = endpoint
         self._stand_name = stand_name
+        self._username = username
+        self._password = password
 
     def run(self):
-        logger.info(f"Получение токена с {self._stand_name}...")
+        logger.info(f"🌐 Получение токена с {self._stand_name}...")
         try:
-            url = f"{self._api_url}{self._endpoint}"
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                token = data.get("token", data.get("access_token", ""))
-                if token:
-                    logger.ok(f"Токен получен с {self._stand_name}")
-                    self.token_received.emit(token)
-                else:
-                    logger.error("Токен не найден в ответе")
-                    self.error_occurred.emit("Токен не найден в ответе")
-            else:
-                logger.error(f"Ошибка получения токена: HTTP {response.status_code}")
-                self.error_occurred.emit(f"Ошибка: {response.status_code}")
+            # Шаг 1: Получить SSO location
+            redirect_url = f"{self._api_url}/backend/auth?redirectUrl=/"
+            response = requests.get(
+                f"{self._api_url}/backend/auth",
+                params={"redirectUrl": redirect_url},
+                timeout=10,
+                verify=False,
+                allow_redirects=False,
+            )
+
+            location = response.headers.get("Location", "")
+            if not location:
+                raise ValueError("Location header не найден")
+
+            sso_uri = location.split("/auth")[0]
+            logger.info(f"✅ SSO URI: {sso_uri}")
+
+            # Шаг 2: Получить токен через SSO
+            form_params = {
+                "username": self._username,
+                "password": self._password,
+                "grant_type": "password",
+                "scope": "openid",
+                "client_id": "jaga",
+            }
+
+            headers = {"Content-Type": "application/x-www-form-urlencoded"}
+            token_url = f"{sso_uri}/auth/realms/jaga/protocol/openid-connect/token"
+
+            token_response = requests.post(
+                token_url, data=form_params, timeout=10, verify=False, headers=headers
+            )
+
+            if token_response.status_code != 200:
+                raise ValueError(
+                    f"HTTP {token_response.status_code}: {token_response.text}"
+                )
+
+            token = token_response.json().get("access_token")
+            if not token:
+                raise ValueError("access_token не найден в ответе")
+
+            logger.ok(f"✅ Токен получен с {self._stand_name}")
+            self.token_received.emit(token)
+
         except Exception as e:
-            logger.error(f"Ошибка получения токена: {e}")
+            logger.error(f"❌ Ошибка получения токена: {e}")
             self.error_occurred.emit(str(e))

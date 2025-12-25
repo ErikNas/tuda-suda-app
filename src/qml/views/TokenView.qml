@@ -38,51 +38,132 @@ Item {
                     color: Theme.textSecondary
                 }
 
+                // Стенд
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 40
+                    radius: Theme.radiusMedium
+                    color: comboMouseArea.containsMouse ? Theme.inputBackgroundHover : Theme.inputBackground
+                    border.width: standCombo.activeFocus ? 2 : 1
+                    border.color: standCombo.activeFocus ? Theme.borderFocus : Theme.border
+
+                    Behavior on color {
+                        ColorAnimation { duration: Theme.animationFast }
+                    }
+
+                    ComboBox {
+                        id: standCombo
+                        anchors.fill: parent
+                        anchors.margins: 1
+                        model: tokenController.stands
+                        enabled: !tokenController.loading
+                        font.pixelSize: 13
+
+                        background: Rectangle {
+                            color: "transparent"
+                        }
+
+                        contentItem: Label {
+                            leftPadding: 12
+                            text: standCombo.displayText
+                            font: standCombo.font
+                            color: Theme.textPrimary
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+
+                    MouseArea {
+                        id: comboMouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        acceptedButtons: Qt.NoButton
+                    }
+                }
+
+                // Логин
+                Label {
+                    text: "Логин"
+                    font.pixelSize: 13
+                    color: Theme.textSecondary
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 40
+                    radius: Theme.radiusMedium
+                    color: loginMouseArea.containsMouse ? Theme.inputBackgroundHover : Theme.inputBackground
+                    border.width: loginField.activeFocus ? 2 : 1
+                    border.color: loginField.activeFocus ? Theme.borderFocus : Theme.border
+
+                    Behavior on color {
+                        ColorAnimation { duration: Theme.animationFast }
+                    }
+
+                    TextInput {
+                        id: loginField
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        font.pixelSize: 13
+                        color: Theme.textPrimary
+                        verticalAlignment: TextInput.AlignVCenter
+                        enabled: !tokenController.loading
+                        selectByMouse: true
+                    }
+
+                    MouseArea {
+                        id: loginMouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        acceptedButtons: Qt.NoButton
+                    }
+                }
+
+                // Пароль
+                Label {
+                    text: "Пароль"
+                    font.pixelSize: 13
+                    color: Theme.textSecondary
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 40
+                    radius: Theme.radiusMedium
+                    color: passwordMouseArea.containsMouse ? Theme.inputBackgroundHover : Theme.inputBackground
+                    border.width: passwordField.activeFocus ? 2 : 1
+                    border.color: passwordField.activeFocus ? Theme.borderFocus : Theme.border
+
+                    Behavior on color {
+                        ColorAnimation { duration: Theme.animationFast }
+                    }
+
+                    TextInput {
+                        id: passwordField
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        font.pixelSize: 13
+                        color: Theme.textPrimary
+                        echoMode: TextInput.Password
+                        verticalAlignment: TextInput.AlignVCenter
+                        enabled: !tokenController.loading
+                        selectByMouse: true
+                    }
+
+                    MouseArea {
+                        id: passwordMouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        acceptedButtons: Qt.NoButton
+                    }
+                }
+
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 12
 
-                    // Стилизованный ComboBox
-                    Rectangle {
-                        Layout.preferredWidth: 250
-                        Layout.preferredHeight: 40
-                        radius: Theme.radiusMedium
-                        color: comboMouseArea.containsMouse ? Theme.inputBackgroundHover : Theme.inputBackground
-                        border.width: standCombo.activeFocus ? 2 : 1
-                        border.color: standCombo.activeFocus ? Theme.borderFocus : Theme.border
-
-                        Behavior on color {
-                            ColorAnimation { duration: Theme.animationFast }
-                        }
-
-                        ComboBox {
-                            id: standCombo
-                            anchors.fill: parent
-                            anchors.margins: 1
-                            model: tokenController.stands
-                            enabled: !tokenController.loading
-                            font.pixelSize: 13
-
-                            background: Rectangle {
-                                color: "transparent"
-                            }
-
-                            contentItem: Label {
-                                leftPadding: 12
-                                text: standCombo.displayText
-                                font: standCombo.font
-                                color: Theme.textPrimary
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                        }
-
-                        MouseArea {
-                            id: comboMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            acceptedButtons: Qt.NoButton
-                        }
-                    }
+                    Item { Layout.fillWidth: true }
 
                     // Кнопка получения токена
                     Rectangle {
@@ -123,7 +204,11 @@ Item {
                             hoverEnabled: true
                             cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                             enabled: !tokenController.loading && standCombo.currentIndex >= 0
-                            onClicked: tokenController.fetch_token(standCombo.currentText)
+                            onClicked: tokenController.fetch_token(
+                                standCombo.currentText,
+                                loginField.text,
+                                passwordField.text
+                            )
                         }
                     }
                 }
