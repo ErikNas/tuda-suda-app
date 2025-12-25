@@ -3,12 +3,16 @@ from pathlib import Path
 
 block_cipher = None
 qml_path = Path('src/qml')
+config_path = Path('config.yaml')
 
 a = Analysis(
     ['src/main.py'],
     pathex=['src'],
     binaries=[],
-    datas=[(str(qml_path), 'qml')],
+    datas=[
+        (str(qml_path), 'qml'),
+        (str(config_path), '.'),  # Копировать config.yaml в корень dist/
+    ],
     hiddenimports=[
         'PySide6.QtQml',
         'PySide6.QtQuick',
@@ -36,4 +40,9 @@ exe = EXE(
     upx=True,
     console=False,
 )
+
+# Копировать config.yaml в dist/ после сборки
+import shutil
+if Path('config.yaml').exists():
+    shutil.copy('config.yaml', 'dist/config.yaml')
 

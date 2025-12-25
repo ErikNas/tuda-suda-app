@@ -19,13 +19,33 @@ def main():
     app.setApplicationName("Tuda-Suda App")
 
     # Загрузка конфига
-    config_path = Path(__file__).parent.parent / "config.yaml"
+    # Поиск config.yaml в следующих местах:
+    # 1. Рядом с исполняемым файлом (для скомпилированного приложения PyInstaller)
+    # 2. Рядом с главным модулем (для разработки из исходника)
+    # 3. В текущей директории
+    possible_paths = [
+        Path(sys.argv[0]).parent / "config.yaml",  # Рядом с исполняемым файлом
+        Path(__file__).parent.parent / "config.yaml",  # Для разработки (src/../config.yaml)
+        Path.cwd() / "config.yaml",  # В текущей директории
+    ]
+    
+    config_path = None
+    for path in possible_paths:
+        if path.exists():
+            config_path = path
+            break
+    
+    if config_path is None:
+        error_msg = f"Конфиг не найден. Ищу в:\n" + "\n".join(str(p) for p in possible_paths)
+        QMessageBox.critical(None, "Ошибка", error_msg)
+        sys.exit(1)
+    
+    logger.info(f"Найден конфиг: {config_path}")
+    
     try:
         config = load_config(config_path)
-    except FileNotFoundError as e:
-        QMessageBox.critical(None, "Ошибка", str(e))
-        sys.exit(1)
     except Exception as e:
+        logger.error(f"Ошибка конфигурации: {e}")
         QMessageBox.critical(None, "Ошибка конфигурации", str(e))
         sys.exit(1)
 
