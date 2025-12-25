@@ -139,6 +139,24 @@ Item {
                             Layout.fillWidth: true
                         }
 
+                        // Тег и ветка
+                        RowLayout {
+                            spacing: 12
+                            visible: modelData.status === "online"
+
+                            Label {
+                                text: "🏷️ " + modelData.tag
+                                font.pixelSize: 11
+                                color: Theme.textSecondary
+                            }
+
+                            Label {
+                                text: "🌿 " + modelData.branch
+                                font.pixelSize: 11
+                                color: Theme.textSecondary
+                            }
+                        }
+
                         // Ссылки на Swagger
                         RowLayout {
                             spacing: 16

@@ -21,6 +21,8 @@ class StandsController(QObject):
                 "external_swagger_url": s.external_swagger_url or "",
                 "status": "unknown",
                 "version": "—",
+                "tag": "—",
+                "branch": "—",
             }
             for s in config.stands
         }
@@ -43,15 +45,26 @@ class StandsController(QObject):
         self._loading = True
         self.loading_changed.emit()
 
-        stands_list = [{"name": s.name, "api_url": s.api_url} for s in self._config.stands]
+        stands_list = [
+            {
+                "name": s.name,
+                "api_url": s.api_url,
+                "health_check_endpoint": s.health_check_endpoint,
+            }
+            for s in self._config.stands
+        ]
         self._checker_thread = StandCheckerThread(stands_list, self)
         self._checker_thread.stand_checked.connect(self._on_stand_checked)
         self._checker_thread.all_checked.connect(self._on_all_checked)
         self._checker_thread.start()
 
-    def _on_stand_checked(self, name: str, status: str, version: str):
+    def _on_stand_checked(
+        self, name: str, status: str, version: str, tag: str, branch: str
+    ):
         self._stands_data[name]["status"] = status
         self._stands_data[name]["version"] = version
+        self._stands_data[name]["tag"] = tag
+        self._stands_data[name]["branch"] = branch
         self.stands_changed.emit()
 
     def _on_all_checked(self):

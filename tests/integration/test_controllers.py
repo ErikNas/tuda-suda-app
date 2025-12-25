@@ -73,6 +73,8 @@ class TestStandsController:
         assert len(stands) == 2
         assert all(s["status"] == "unknown" for s in stands)
         assert all(s["version"] == "—" for s in stands)
+        assert all(s["tag"] == "—" for s in stands)
+        assert all(s["branch"] == "—" for s in stands)
 
     def test_loading_property(self, sample_config):
         """Свойство loading."""

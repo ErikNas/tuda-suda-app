@@ -7,6 +7,7 @@ vpn_checks:
 stands:
   - name: "DEV-1"
     api_url: "https://dev1.example.com/api"
+    health_check_endpoint: "/api/health"
     core_swagger_url: "https://dev1.example.com/core/swagger"
     external_swagger_url: "https://dev1.example.com/external/swagger"
     db_host: "dev1-db.example.com"
@@ -16,6 +17,7 @@ stands:
     db_password: "secret"
   - name: "DEV-2"
     api_url: "https://dev2.example.com/api"
+    health_check_endpoint: "/api/health"
     core_swagger_url: "https://dev2.example.com/core/swagger"
     external_swagger_url: "https://dev2.example.com/external/swagger"
     db_host: "dev2-db.example.com"

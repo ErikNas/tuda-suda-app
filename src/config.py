@@ -12,6 +12,7 @@ class VpnCheck(BaseModel):
 class Stand(BaseModel):
     name: str
     api_url: str
+    health_check_endpoint: str = "/api/health"
     db_host: str
     db_port: int
     db_name: str
