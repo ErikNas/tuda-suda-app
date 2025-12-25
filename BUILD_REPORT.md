@@ -53,6 +53,11 @@ pytest-mock               3.15.1
 - **Причина:** Версия Python не совпадала с требованиями `pyproject.toml`
 - **Решение:** Обновлены требования на `python = ">=3.12,<3.14"`
 
+### Проблема с GLIBC (кроссплатформенность)
+- **Причина:** Дистрибутив собран на системе с GLIBC 2.38, не работает на системах со старыми GLIBC (2.31-2.35)
+- **Ошибка:** `version 'GLIBC_2.38' not found`
+- **Решение:** Docker-сборка на базе Ubuntu 20.04 (GLIBC 2.31) для максимальной совместимости
+
 ---
 
 ## Процесс сборки
@@ -101,6 +106,40 @@ poetry run python src/main.py
 
 ---
 
+## Кроссплатформенная сборка (Docker)
+
+Для совместимости со старыми системами используется Docker-сборка на базе Ubuntu 20.04:
+
+### Сборка
+
+```bash
+cd distribution
+./build_in_docker.sh
+
+# Результат в distribution/dist-docker/
+```
+
+**Целевая система:** Ubuntu 20.04 (GLIBC 2.31)  
+**Совместимость:** Все системы с GLIBC >= 2.31 (Ubuntu 20.04+, Debian 11+, RHEL 8+, Fedora 32+, и т.д.)
+
+**Последняя сборка:** 25.12.2024  
+**Статус:** ✅ Готово к тестированию
+
+### Нативная сборка
+
+Для быстрой сборки на целевой системе:
+
+```bash
+cd distribution
+./build_native.sh
+
+# Результат в distribution/dist-native/
+```
+
+**Подробности:** См. `distribution/README.md`
+
+---
+
 ## Команды для разработки
 
 ```bash
@@ -110,8 +149,8 @@ poetry run pytest -v
 # Форматирование кода
 poetry run black src/
 
-# Сборка нового бинарника
-poetry run pyinstaller tuda-suda.spec
+# Сборка (см. distribution/README.md)
+cd distribution && ./build_native.sh
 ```
 
 ---

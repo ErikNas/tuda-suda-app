@@ -1,0 +1,43 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Build artifacts
+dist/
+dist-docker/
+dist-native/
+build/
+distribution/
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Tests
+tests/
+
+# Docs
+doc/
+BUILD_REPORT.md
+README.md
+idea.md
+vision.md
+DOCKER_BUILD_GUIDE.md
+
+# CI/CD
+.github/
+

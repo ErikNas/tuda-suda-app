@@ -10,6 +10,10 @@ __pycache__/
 dist/
 build/
 
+# Distribution artifacts
+distribution/dist-docker/
+distribution/dist-native/
+
 # IDE
 .idea/
 *.swp
